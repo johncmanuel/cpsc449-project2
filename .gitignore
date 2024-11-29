@@ -27,3 +27,6 @@ go.work.sum
 # devbox stuff
 devbox.d
 .devbox
+
+# Air created files
+tmp

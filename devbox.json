@@ -3,7 +3,8 @@
   "packages": [
     "go@1.23.1",
     "postgresql@16.4",
-    "redis@7.2.6"
+    "redis@7.2.6",
+    "air@1.61.1"
   ],
   "shell": {
     "init_hook": [
