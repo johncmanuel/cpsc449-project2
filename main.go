@@ -48,7 +48,7 @@ func SetupRouter(cli *canvas.CanvasClient) *gin.Engine {
 func main() {
 	utils.LoadEnv()
 	var (
-		BASE_CANVAS_URL = "https://csufullerton.instructure.com/"
+		BASE_CANVAS_URL = utils.GetEnv("CANVAS_URL")
 		CANVAS_TOKEN    = utils.GetEnv("CANVAS_TOKEN")
 	)
 
