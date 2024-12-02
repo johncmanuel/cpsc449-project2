@@ -30,3 +30,6 @@ devbox.d
 
 # Air created files
 tmp
+
+# Uploaded files
+uploads/

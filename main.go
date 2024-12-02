@@ -2,14 +2,18 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/johncmanuel/cpsc449-project2/pkgs/canvas"
 	"github.com/johncmanuel/cpsc449-project2/pkgs/utils"
 )
+
+var uploadedFilesDir = "./uploads"
 
 // Just for printing and testing the API
 func ExampleCanvasAssignmentFetcher(c *canvas.CanvasClient) {
@@ -42,6 +46,40 @@ func SetupRouter(cli *canvas.CanvasClient) *gin.Engine {
 		ExampleCanvasAssignmentFetcher(cli)
 	})
 
+	// It's possible to get the syllabus through Canvas API; however, some
+	// teachers only upload their syllabus file in the the syllabus page. The API returns
+	// the HTML content of the syllabus page, so not sure if the API would be able to return the file
+	r.POST("/syllabus", func(c *gin.Context) {
+		f, err := c.FormFile("file")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "No file uploaded",
+			})
+			return
+		}
+
+		fpath := filepath.Join(uploadedFilesDir, f.Filename)
+
+		if err := os.MkdirAll(uploadedFilesDir, os.ModePerm); err != nil {
+			log.Println("Error creating directory:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal server error",
+			})
+			return
+		}
+
+		if err := c.SaveUploadedFile(f, fpath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to save file",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"filename": f.Filename,
+			"message":  "File uploaded successfully",
+		})
+	})
 	return r
 }
 
