@@ -4,7 +4,8 @@
     "go@1.23.1",
     "postgresql@16.4",
     "redis@7.2.6",
-    "air@1.61.1"
+    "air@1.61.1",
+    "sqlc@1.27.0"
   ],
   "shell": {
     "init_hook": [
