@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	_ "embed"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,11 +12,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/johncmanuel/cpsc449-project2/db/sqlite"
 	"github.com/johncmanuel/cpsc449-project2/pkgs/canvas"
 	"github.com/johncmanuel/cpsc449-project2/pkgs/utils"
 )
 
 var uploadedFilesDir = "./uploads"
+
+//go:embed db/sqlite/schema.sql
+var ddl string
 
 // Just for printing and testing the API
 func ExampleCanvasAssignmentFetcher(c *canvas.CanvasClient) {
@@ -89,6 +96,19 @@ func main() {
 		BASE_CANVAS_URL = utils.GetEnv("CANVAS_URL")
 		CANVAS_TOKEN    = utils.GetEnv("CANVAS_TOKEN")
 	)
+
+	db, err := sql.Open("sqlite3", "./db/canvas.db")
+	if err != nil {
+		panic(fmt.Sprintf("Error opening database: %v", err))
+	}
+	defer db.Close()
+
+	// create the tables if they don't exist
+	if _, err := db.ExecContext(context.Background(), ddl); err != nil {
+		panic(fmt.Sprintf("Error creating tables: %v", err))
+	}
+
+	queries := sqlite.New(db)
 
 	client := canvas.NewCanvasClient(BASE_CANVAS_URL, CANVAS_TOKEN)
 

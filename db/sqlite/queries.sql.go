@@ -3,21 +3,20 @@
 //   sqlc v1.27.0
 // source: queries.sql
 
-package psql
+package sqlite
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 const deleteAssignmentsByCourse = `-- name: DeleteAssignmentsByCourse :exec
 DELETE FROM assignments 
-WHERE course_id = $1
+WHERE course_id = ?1
 `
 
-func (q *Queries) DeleteAssignmentsByCourse(ctx context.Context, courseID int32) error {
-	_, err := q.db.Exec(ctx, deleteAssignmentsByCourse, courseID)
+func (q *Queries) DeleteAssignmentsByCourse(ctx context.Context, courseID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAssignmentsByCourse, courseID)
 	return err
 }
 
@@ -37,13 +36,13 @@ ORDER BY assignment_count DESC
 `
 
 type GetAssignmentCountsByCourseRow struct {
-	CourseID        int32  `json:"course_id"`
+	CourseID        int64  `json:"course_id"`
 	CourseName      string `json:"course_name"`
 	AssignmentCount int64  `json:"assignment_count"`
 }
 
 func (q *Queries) GetAssignmentCountsByCourse(ctx context.Context) ([]GetAssignmentCountsByCourseRow, error) {
-	rows, err := q.db.Query(ctx, getAssignmentCountsByCourse)
+	rows, err := q.db.QueryContext(ctx, getAssignmentCountsByCourse)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +55,9 @@ func (q *Queries) GetAssignmentCountsByCourse(ctx context.Context) ([]GetAssignm
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -65,18 +67,18 @@ func (q *Queries) GetAssignmentCountsByCourse(ctx context.Context) ([]GetAssignm
 const listAssignmentsByCourse = `-- name: ListAssignmentsByCourse :many
 SELECT id, name, due_date
 FROM assignments
-WHERE course_id = $1
+WHERE course_id = ?1
 ORDER BY due_date
 `
 
 type ListAssignmentsByCourseRow struct {
-	ID      int32              `json:"id"`
-	Name    string             `json:"name"`
-	DueDate pgtype.Timestamptz `json:"due_date"`
+	ID      int64        `json:"id"`
+	Name    string       `json:"name"`
+	DueDate sql.NullTime `json:"due_date"`
 }
 
-func (q *Queries) ListAssignmentsByCourse(ctx context.Context, courseID int32) ([]ListAssignmentsByCourseRow, error) {
-	rows, err := q.db.Query(ctx, listAssignmentsByCourse, courseID)
+func (q *Queries) ListAssignmentsByCourse(ctx context.Context, courseID int64) ([]ListAssignmentsByCourseRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAssignmentsByCourse, courseID)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +91,9 @@ func (q *Queries) ListAssignmentsByCourse(ctx context.Context, courseID int32) (
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -98,42 +103,41 @@ func (q *Queries) ListAssignmentsByCourse(ctx context.Context, courseID int32) (
 const updateAssignment = `-- name: UpdateAssignment :exec
 UPDATE assignments
 SET 
-    name = $2,
-    due_date = $3
-WHERE id = $1
+    name = ?2,
+    due_date = ?3
+WHERE id = ?1
 `
 
 type UpdateAssignmentParams struct {
-	ID      int32              `json:"id"`
-	Name    string             `json:"name"`
-	DueDate pgtype.Timestamptz `json:"due_date"`
+	ID      int64        `json:"id"`
+	Name    string       `json:"name"`
+	DueDate sql.NullTime `json:"due_date"`
 }
 
 func (q *Queries) UpdateAssignment(ctx context.Context, arg UpdateAssignmentParams) error {
-	_, err := q.db.Exec(ctx, updateAssignment, arg.ID, arg.Name, arg.DueDate)
+	_, err := q.db.ExecContext(ctx, updateAssignment, arg.ID, arg.Name, arg.DueDate)
 	return err
 }
 
 const upsertAssignment = `-- name: UpsertAssignment :one
 INSERT INTO assignments (id, course_id, name, due_date)
-VALUES ($1, $2, $3, $4)
-ON CONFLICT (id) DO UPDATE
-SET 
-    course_id = EXCLUDED.course_id,
-    name = EXCLUDED.name,
-    due_date = EXCLUDED.due_date
+VALUES (?1, ?2, ?3, ?4)
+ON CONFLICT(id) DO UPDATE SET 
+    course_id = excluded.course_id,
+    name = excluded.name,
+    due_date = excluded.due_date
 RETURNING id, course_id, name, due_date, created_at
 `
 
 type UpsertAssignmentParams struct {
-	ID       int32              `json:"id"`
-	CourseID int32              `json:"course_id"`
-	Name     string             `json:"name"`
-	DueDate  pgtype.Timestamptz `json:"due_date"`
+	ID       int64        `json:"id"`
+	CourseID int64        `json:"course_id"`
+	Name     string       `json:"name"`
+	DueDate  sql.NullTime `json:"due_date"`
 }
 
 func (q *Queries) UpsertAssignment(ctx context.Context, arg UpsertAssignmentParams) (Assignment, error) {
-	row := q.db.QueryRow(ctx, upsertAssignment,
+	row := q.db.QueryRowContext(ctx, upsertAssignment,
 		arg.ID,
 		arg.CourseID,
 		arg.Name,
@@ -152,19 +156,20 @@ func (q *Queries) UpsertAssignment(ctx context.Context, arg UpsertAssignmentPara
 
 const upsertCourse = `-- name: UpsertCourse :one
 INSERT INTO courses (id, name)
-VALUES ($1, $2)
-ON CONFLICT (id) DO UPDATE 
-SET name = EXCLUDED.name
+VALUES (?1, ?2)
+ON CONFLICT(id) DO UPDATE SET 
+    name = excluded.name
 RETURNING id, name, created_at
 `
 
 type UpsertCourseParams struct {
-	ID   int32  `json:"id"`
+	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
+// queries.sql
 func (q *Queries) UpsertCourse(ctx context.Context, arg UpsertCourseParams) (Course, error) {
-	row := q.db.QueryRow(ctx, upsertCourse, arg.ID, arg.Name)
+	row := q.db.QueryRowContext(ctx, upsertCourse, arg.ID, arg.Name)
 	var i Course
 	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
 	return i, err

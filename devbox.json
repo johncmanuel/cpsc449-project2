@@ -2,10 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.6/.schema/devbox.schema.json",
   "packages": [
     "go@1.23.1",
-    "postgresql@16.4",
     "redis@7.2.6",
     "air@1.61.1",
-    "sqlc@1.27.0"
+    "sqlc@1.27.0",
+    "sqlite@3.46.1"
   ],
   "shell": {
     "init_hook": [

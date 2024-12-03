@@ -97,131 +97,6 @@
         }
       }
     },
-    "postgresql@16.4": {
-      "last_modified": "2024-11-17T04:10:55Z",
-      "plugin_version": "0.0.2",
-      "resolved": "github:NixOS/nixpkgs/0a14706530dcb90acecb81ce0da219d88baaae75#postgresql",
-      "source": "devbox-search",
-      "version": "16.4",
-      "systems": {
-        "aarch64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/j6n9b877yhrnkp9z9p1gllxpnfvdrbrb-postgresql-16.4",
-              "default": true
-            },
-            {
-              "name": "man",
-              "path": "/nix/store/465icqyw6m38jxpx5yr1ri26ki0f96sz-postgresql-16.4-man",
-              "default": true
-            },
-            {
-              "name": "dev",
-              "path": "/nix/store/jvw9nsblsbh9m4n551sq7qnw82hhsv08-postgresql-16.4-dev"
-            },
-            {
-              "name": "doc",
-              "path": "/nix/store/fk1x8k1qsiaasp73qnzyrzw4ylaf1xy6-postgresql-16.4-doc"
-            },
-            {
-              "name": "lib",
-              "path": "/nix/store/l9w6d22hrcrxkv005g2gbzhvk64vp4rm-postgresql-16.4-lib"
-            }
-          ],
-          "store_path": "/nix/store/j6n9b877yhrnkp9z9p1gllxpnfvdrbrb-postgresql-16.4"
-        },
-        "aarch64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/2ywn472iqfdiyw5w4frm63rn3nyrkgn1-postgresql-16.4",
-              "default": true
-            },
-            {
-              "name": "man",
-              "path": "/nix/store/650fqsb195p9x00jgqgzkisjwddbvgfd-postgresql-16.4-man",
-              "default": true
-            },
-            {
-              "name": "debug",
-              "path": "/nix/store/wm34pd2y04mjgvhanqw4ymmhds56l9da-postgresql-16.4-debug"
-            },
-            {
-              "name": "dev",
-              "path": "/nix/store/ai2ckvi44jdh9i5078gj5brdwsxk4ydm-postgresql-16.4-dev"
-            },
-            {
-              "name": "doc",
-              "path": "/nix/store/qys6z2y4iwr0f6ahpq9gcv9hb551w479-postgresql-16.4-doc"
-            },
-            {
-              "name": "lib",
-              "path": "/nix/store/pii1vyxbzggi7aqy7xglav8p52c0qfp2-postgresql-16.4-lib"
-            }
-          ],
-          "store_path": "/nix/store/2ywn472iqfdiyw5w4frm63rn3nyrkgn1-postgresql-16.4"
-        },
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/5k1p2jjnsdcsvk8zpsqxlzhajh1x9ghq-postgresql-16.4",
-              "default": true
-            },
-            {
-              "name": "man",
-              "path": "/nix/store/p8b24icm7xiwlky1dggqcinn1ah92agl-postgresql-16.4-man",
-              "default": true
-            },
-            {
-              "name": "lib",
-              "path": "/nix/store/4va0gp1c718dk1zyqs0il2gn7a81spr0-postgresql-16.4-lib"
-            },
-            {
-              "name": "dev",
-              "path": "/nix/store/cvl9wdw387jk02bbhm1qvidzl18hayyr-postgresql-16.4-dev"
-            },
-            {
-              "name": "doc",
-              "path": "/nix/store/ysmwxhh3s2l1k2jkzxq0bv6vdzlgr14j-postgresql-16.4-doc"
-            }
-          ],
-          "store_path": "/nix/store/5k1p2jjnsdcsvk8zpsqxlzhajh1x9ghq-postgresql-16.4"
-        },
-        "x86_64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/ypx0whdqvwbql73nija0zrm4z3rgcm9l-postgresql-16.4",
-              "default": true
-            },
-            {
-              "name": "man",
-              "path": "/nix/store/7x75jfmpc7x36863cf6kr61ikcz787ki-postgresql-16.4-man",
-              "default": true
-            },
-            {
-              "name": "debug",
-              "path": "/nix/store/pxhd0wq2sbafamjmcp7f890qza76gwav-postgresql-16.4-debug"
-            },
-            {
-              "name": "dev",
-              "path": "/nix/store/20i6jma3fbm4sw060hdnrs311fw4aczj-postgresql-16.4-dev"
-            },
-            {
-              "name": "doc",
-              "path": "/nix/store/4c7h8sg2i0jim6hzmzhjw5nn0zmx1xvd-postgresql-16.4-doc"
-            },
-            {
-              "name": "lib",
-              "path": "/nix/store/xd8ks7bs2p7gjgk8h98bfg8801swl9m0-postgresql-16.4-lib"
-            }
-          ],
-          "store_path": "/nix/store/ypx0whdqvwbql73nija0zrm4z3rgcm9l-postgresql-16.4"
-        }
-      }
-    },
     "redis@7.2.6": {
       "last_modified": "2024-11-16T04:25:12Z",
       "plugin_version": "0.0.2",
@@ -316,6 +191,130 @@
             }
           ],
           "store_path": "/nix/store/6mcdgk9rg9g4kia87jjv25h90b2n9r62-sqlc-1.27.0"
+        }
+      }
+    },
+    "sqlite@3.46.1": {
+      "last_modified": "2024-11-28T07:51:56Z",
+      "resolved": "github:NixOS/nixpkgs/226216574ada4c3ecefcbbec41f39ce4655f78ef#sqlite",
+      "source": "devbox-search",
+      "version": "3.46.1",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/gz6xbzz93ynqi8bb0dqawd5g8qpb52yv-sqlite-3.46.1-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/czkagyyjysqg178byvwy407kbgwqms5r-sqlite-3.46.1-man",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/w41fjzsvxs2z8dvxhz0m2v7m6p3jbpvw-sqlite-3.46.1-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/2vnp5ivaqhl6fhzr70viyinr7wxc2sch-sqlite-3.46.1-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/5jcgl3pxsqfnpy1ax46gv3s82cpl25v3-sqlite-3.46.1"
+            }
+          ],
+          "store_path": "/nix/store/gz6xbzz93ynqi8bb0dqawd5g8qpb52yv-sqlite-3.46.1-bin"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/dq62dc2f8jv61lsb4m5a5gawgglyxbnc-sqlite-3.46.1-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/cgm8aqydlvnaiq8k2sfffjmcah143xni-sqlite-3.46.1-man",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/wpbwgq7yri38z1c5qc2m9ncqxb6sgqmy-sqlite-3.46.1-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/42403yibks7lq5rly9j5n26z8im7lvzh-sqlite-3.46.1-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/w54kzd9w6wk3d31gfvdxkk20168x59kc-sqlite-3.46.1-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/a00dfl8fpsl849jflxq9zxb7ycxanv2i-sqlite-3.46.1"
+            }
+          ],
+          "store_path": "/nix/store/dq62dc2f8jv61lsb4m5a5gawgglyxbnc-sqlite-3.46.1-bin"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/h6cd6bwfv04613bln5pam9j691nrgfg0-sqlite-3.46.1-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/m0qa7yp2gsabxwgbl3srjghnd7hc4zh8-sqlite-3.46.1-man",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/ajffhbb6nj3snq3za4i1zgnxhk4q52az-sqlite-3.46.1-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/n1zrl6d8j4kp696h8q05sapq5lzhhc22-sqlite-3.46.1-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/ynr1fsxrvwdckpwzgili133l7v2zpk4i-sqlite-3.46.1"
+            }
+          ],
+          "store_path": "/nix/store/h6cd6bwfv04613bln5pam9j691nrgfg0-sqlite-3.46.1-bin"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/80m70rdpggnq79adh1y2sywx8120abw5-sqlite-3.46.1-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/vg13zmz9wsjajghcm0g3yx6i0zfnf5ai-sqlite-3.46.1-man",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/54m8sz18n1zrv80x2gmsgyvaj7fbbj27-sqlite-3.46.1-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/jn92hm1bzs1x2aa1a90lz7dw9nnf6amk-sqlite-3.46.1-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/snh3n8klyfx4ksij9kp3ymd733ccf1di-sqlite-3.46.1-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/yjm4j9n85bcp42v5nkz2xifrp4a9s63k-sqlite-3.46.1"
+            }
+          ],
+          "store_path": "/nix/store/80m70rdpggnq79adh1y2sywx8120abw5-sqlite-3.46.1-bin"
         }
       }
     }
