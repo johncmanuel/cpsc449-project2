@@ -1,0 +1,8 @@
+version: "0.5"
+
+processes:
+  go:
+    # use go run ./main.go if you don't want hot-reloading or have air installed
+    command: air
+    availability:
+      restart: "always"
