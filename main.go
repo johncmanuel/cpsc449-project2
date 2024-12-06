@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"database/sql"
-	_ "embed"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	_ "github.com/mattn/go-sqlite3"
+
+	_ "embed"
 
 	"github.com/gin-gonic/gin"
 
@@ -41,7 +44,7 @@ func ExampleCanvasAssignmentFetcher(c *canvas.CanvasClient) {
 	}
 }
 
-func SetupRouter(cli *canvas.CanvasClient) *gin.Engine {
+func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
 	r := gin.Default()
 
 	// Setup routes and other endpoints here
@@ -108,11 +111,11 @@ func main() {
 		panic(fmt.Sprintf("Error creating tables: %v", err))
 	}
 
-	queries := sqlite.New(db)
+	q := sqlite.New(db)
 
 	client := canvas.NewCanvasClient(BASE_CANVAS_URL, CANVAS_TOKEN)
 
-	router := SetupRouter(client)
+	router := SetupRouter(client, q)
 
 	port := os.Getenv("PORT")
 	if port == "" {
