@@ -51,7 +51,6 @@ func GetInstance() *RedisClient {
 
 // Set a key-value pair with optional expiration
 func (r *RedisClient) Set(key string, value interface{}) error {
-	// There's a way to have
 	defaultExpiration := 2 * time.Minute
 	return r.client.Set(context.Background(), key, value, defaultExpiration).Err()
 }
