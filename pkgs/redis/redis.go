@@ -30,8 +30,8 @@ func GetInstance() *RedisClient {
 	once.Do(func() {
 		rdb := redis.NewClient(&redis.Options{
 			Addr:     REDIS_ADDR,
-			Password: REDIS_PASSWORD, // set to "" if no password
-			DB:       0,              // use default DB
+			Password: REDIS_PASSWORD,
+			DB:       0,
 		})
 
 		// Ping to check connection
@@ -50,34 +50,36 @@ func GetInstance() *RedisClient {
 }
 
 // Set a key-value pair with optional expiration
-func (r *RedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	return r.client.Set(ctx, key, value, expiration).Err()
+func (r *RedisClient) Set(key string, value interface{}) error {
+	// There's a way to have
+	defaultExpiration := 2 * time.Minute
+	return r.client.Set(context.Background(), key, value, defaultExpiration).Err()
 }
 
 // Retrieve a value for a given key
-func (r *RedisClient) Get(ctx context.Context, key string) (string, error) {
-	return r.client.Get(ctx, key).Result()
+func (r *RedisClient) Get(key string) (string, error) {
+	return r.client.Get(context.Background(), key).Result()
 }
 
 // Remove a key
-func (r *RedisClient) Delete(ctx context.Context, key string) error {
-	return r.client.Del(ctx, key).Err()
+func (r *RedisClient) Delete(key string) error {
+	return r.client.Del(context.Background(), key).Err()
 }
 
 // Increments the integer value of a key
-func (r *RedisClient) Increment(ctx context.Context, key string) (int64, error) {
-	return r.client.Incr(ctx, key).Result()
+func (r *RedisClient) Increment(key string) (int64, error) {
+	return r.client.Incr(context.Background(), key).Result()
 }
 
 // The below hash operations let us store KV pairs (specifically key, string pairs), which can be
 // useful for our project.
 
 // Set multiple fields in a hash
-func (r *RedisClient) SetHash(ctx context.Context, key string, fields map[string]interface{}) error {
-	return r.client.HMSet(ctx, key, fields).Err()
+func (r *RedisClient) SetHash(key string, fields map[string]interface{}) error {
+	return r.client.HMSet(context.Background(), key, fields).Err()
 }
 
 // Retrieves all fields of a hash
-func (r *RedisClient) GetHash(ctx context.Context, key string) (map[string]string, error) {
-	return r.client.HGetAll(ctx, key).Result()
+func (r *RedisClient) GetHash(key string) (map[string]string, error) {
+	return r.client.HGetAll(context.Background(), key).Result()
 }

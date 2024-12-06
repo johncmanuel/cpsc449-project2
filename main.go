@@ -117,6 +117,19 @@ func main() {
 
 	router := SetupRouter(client, q)
 
+	// test redis
+	// r := redis.GetInstance()
+	// r.Set("test", "value")
+	// val, err := r.Get("test")
+	// if err != nil {
+	// 	fmt.Println("REDIS: Error getting key:", err)
+	// }
+	// fmt.Println(val)
+	// r.Delete("test")
+	// if _, err := r.Get("test"); err != nil {
+	// 	fmt.Println("REDIS: Key not found, which is expected", err)
+	// }
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
