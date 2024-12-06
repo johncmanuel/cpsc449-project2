@@ -1,11 +1,11 @@
 -- schema.sql
-CREATE TABLE courses (
+CREATE TABLE IF NOT EXISTS courses (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE assignments (
+CREATE TABLE IF NOT EXISTS assignments (
     id INTEGER PRIMARY KEY,
     course_id INTEGER NOT NULL,
     name TEXT NOT NULL,
@@ -17,8 +17,8 @@ CREATE TABLE assignments (
 );
 
 -- Index for faster lookups (optional in SQLite, but can improve performance)
-CREATE INDEX idx_assignments_course_id ON assignments(course_id);
-CREATE INDEX idx_assignments_due_date ON assignments(due_date);
+CREATE INDEX IF NOT EXISTS idx_assignments_course_id ON assignments(course_id);
+CREATE INDEX IF NOT EXISTS idx_assignments_due_date ON assignments(due_date);
 
 -- CREATE TABLE courses (
 --     id INTEGER PRIMARY KEY,
