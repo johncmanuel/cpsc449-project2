@@ -13,6 +13,7 @@ type CanvasClient struct {
 	HTTPClient *http.Client
 }
 
+// https://canvas.instructure.com/doc/api/assignments.html
 type Assignment struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
@@ -22,19 +23,23 @@ type Assignment struct {
 }
 
 type Course struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	StartAt string `json:"start_at"`
-	EndAt   string `json:"end_at"`
-	Term    struct {
-		ID            int    `json:"id"`
-		Name          string `json:"name"`
-		StartAt       string `json:"start_at"`
-		EndAt         string `json:"end_at"`
-		CreatedAt     string `json:"created_at"`
-		WorkflowState string `json:"workflow_state"`
+	ID               int    `json:"id"`
+	Name             string `json:"name"`
+	StartAt          string `json:"start_at"`
+	EndAt            string `json:"end_at"`
+	EnrollmentTermID int    `json:"enrollment_term_id"`
+	Term             struct {
+		ID      int    `json:"id"`
+		Name    string `json:"name"`
+		StartAt string `json:"start_at"`
+		EndAt   string `json:"end_at"`
 	} `json:"term"`
 }
+
+// NOTE: There might be a way to dynamically get the current term (as of 11/29/24, it'll be Fall 2024)
+// Need to add enrollment_term_id to the url queries tho, but for sake of time, we can hard code it
+// https://canvas.instructure.com/doc/api/enrollment_terms.html#method.terms_api.index
+var CurrentTermID = 15380 // for Fall 2024 at CSUF
 
 func NewCanvasClient(baseURL, authToken string) *CanvasClient {
 	return &CanvasClient{
@@ -46,9 +51,6 @@ func NewCanvasClient(baseURL, authToken string) *CanvasClient {
 
 // https://canvas.instructure.com/doc/api/courses.html#method.courses.index
 func (c *CanvasClient) GetCurrentTermCourses() ([]Course, error) {
-	// NOTE: There might be a way to dynamically get the current term (as of 11/29/24, it'll be Fall 2024)
-	// Need to add enrollment_term_id to the url queries tho, but for sake of time, we can hard code it
-	// https://canvas.instructure.com/doc/api/enrollment_terms.html#method.terms_api.index
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/courses?published=true&include[]=term", c.BaseURL), nil)
 	if err != nil {
 		return nil, err
@@ -73,13 +75,17 @@ func (c *CanvasClient) GetCurrentTermCourses() ([]Course, error) {
 		return nil, err
 	}
 
-	// Print courses, course term and id
-	// TODO: ID isn't being printed. Maybe we don't have the proper permissions?
-	for _, course := range courses {
-		fmt.Printf("Course: %s (ID: %d), Term: %s\n (ID: %d)", course.Name, course.ID, course.Term.Name, course.Term.ID)
+	var currentCourses []Course
+
+	// Filter out courses that aren't in the current term
+	for i, course := range courses {
+		if course.Term.ID != CurrentTermID {
+			continue
+		}
+		currentCourses = append(currentCourses, courses[i])
 	}
 
-	return courses, nil
+	return currentCourses, nil
 }
 
 func (c *CanvasClient) GetAssignmentsForCourse(courseID int) ([]Assignment, error) {
