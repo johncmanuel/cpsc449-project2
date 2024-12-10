@@ -45,6 +45,29 @@ func (q *Queries) DeleteCourse(ctx context.Context, id int64) error {
 	return err
 }
 
+const getAssignment = `-- name: GetAssignment :one
+SELECT id, course_id, name, due_date, created_at FROM assignments
+WHERE id = ?1 and course_id = ?2
+`
+
+type GetAssignmentParams struct {
+	ID       int64 `json:"id"`
+	CourseID int64 `json:"course_id"`
+}
+
+func (q *Queries) GetAssignment(ctx context.Context, arg GetAssignmentParams) (Assignment, error) {
+	row := q.db.QueryRowContext(ctx, getAssignment, arg.ID, arg.CourseID)
+	var i Assignment
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Name,
+		&i.DueDate,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getAssignmentCountsByCourse = `-- name: GetAssignmentCountsByCourse :many
 WITH assignment_counts AS (
     SELECT course_id, COUNT(*) as total_assignments

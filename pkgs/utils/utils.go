@@ -3,6 +3,7 @@ package utils
 import (
 	"database/sql"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -35,4 +36,13 @@ func ConvertToNullTime(timestamp string) sql.NullTime {
 		Time:  parsedTime,
 		Valid: true,
 	}
+}
+
+// https://stackoverflow.com/a/28267165
+func ConvertStringToInt64(s string) int64 {
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	return i
 }

@@ -54,6 +54,10 @@ FROM courses c
 LEFT JOIN assignment_counts ac ON c.id = ac.course_id
 ORDER BY assignment_count DESC;
 
+-- name: GetAssignment :one
+SELECT * FROM assignments
+WHERE id = ?1 and course_id = ?2;
+
 -- name: ListAllAssignments :many
 SELECT * FROM assignments;
 

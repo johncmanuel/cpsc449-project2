@@ -17,6 +17,7 @@ import (
 
 	"github.com/johncmanuel/cpsc449-project2/db/sqlite"
 	"github.com/johncmanuel/cpsc449-project2/pkgs/canvas"
+	"github.com/johncmanuel/cpsc449-project2/pkgs/redis"
 	"github.com/johncmanuel/cpsc449-project2/pkgs/utils"
 )
 
@@ -72,16 +73,65 @@ func HandleAssignments(c *canvas.CanvasClient, q *sqlite.Queries) {
 	}
 }
 
+// Gets an individual assignment from the DB
+func GetAssignment(c *gin.Context, q *sqlite.Queries) {
+	courseID := c.Param("courseID")
+	assignmentID := c.Param("assignmentID")
+	r := redis.GetInstance()
+	keys := redis.GenerateTupleKey(courseID, assignmentID)
+
+	// Check if it exists in cache first
+	// if it does, return it
+	// if not, get it from the DB and cache it
+	// if it doesn't exist in the DB, return 404
+	e, err := r.Exists(keys)
+	if err != nil {
+		fmt.Printf("Error checking for key: %v\n", err)
+	}
+	if !e {
+		// get from the DB
+		params := sqlite.GetAssignmentParams{
+			CourseID: utils.ConvertStringToInt64(courseID),
+			ID:       utils.ConvertStringToInt64(assignmentID),
+		}
+		assignment, err := q.GetAssignment(context.Background(), params)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Assignment not found",
+			})
+			return
+		}
+		// cache it
+		if err := r.Set(keys, assignment); err != nil {
+			fmt.Printf("Error caching assignment: %v\n", err)
+		}
+		c.JSON(http.StatusOK, assignment)
+	}
+	// get from cache
+	val, err := r.Get(keys)
+	if err != nil {
+		fmt.Printf("Error getting key: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, val)
+}
+
 func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
 	r := gin.Default()
-
-	// Setup routes and other endpoints here
 
 	// Test route
 	r.GET("/test", func(c *gin.Context) {
 		ExampleCanvasAssignmentFetcher(cli)
 	})
 
+	r.GET("/:courseID/assignments/:assignmentID", func(c *gin.Context) {
+		GetAssignment(c, q)
+	})
+	// r.PUT("/:courseID/assignments/:assignmentID", UpdateAssignment)
+	// r.DELETE("/:courseID/assignments/:assignmentID", DeleteAssignment)
 	r.GET("/assignments", func(c *gin.Context) {
 		// ExampleCanvasAssignmentFetcher(cli)
 		HandleAssignments(cli, q)
