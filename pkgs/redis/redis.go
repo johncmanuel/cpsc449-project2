@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -49,6 +50,10 @@ func GetInstance() *RedisClient {
 	return instance
 }
 
+func GenerateTupleKey(key1, key2 string) string {
+	return fmt.Sprintf("(%s, %s)", key1, key2)
+}
+
 // Set a key-value pair with optional expiration
 func (r *RedisClient) Set(key string, value interface{}) error {
 	defaultExpiration := 2 * time.Minute
@@ -58,6 +63,15 @@ func (r *RedisClient) Set(key string, value interface{}) error {
 // Retrieve a value for a given key
 func (r *RedisClient) Get(key string) (string, error) {
 	return r.client.Get(context.Background(), key).Result()
+}
+
+// Check if key exists in the cache
+func (r *RedisClient) Exists(key string) (bool, error) {
+	count, err := r.client.Exists(context.Background(), key).Result()
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 // Remove a key
