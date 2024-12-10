@@ -216,36 +216,50 @@ const updateAssignment = `-- name: UpdateAssignment :exec
 UPDATE assignments
 SET 
     name = ?2,
-    due_date = ?3
+    due_date = ?3,
+    difficulty = ?4,
+    length = ?5
 WHERE id = ?1
 `
 
 type UpdateAssignmentParams struct {
-	ID      int64        `json:"id"`
-	Name    string       `json:"name"`
-	DueDate sql.NullTime `json:"due_date"`
+	ID         int64         `json:"id"`
+	Name       string        `json:"name"`
+	DueDate    sql.NullTime  `json:"due_date"`
+	Difficulty sql.NullInt64 `json:"difficulty"`
+	Length     sql.NullInt64 `json:"length"`
 }
 
 func (q *Queries) UpdateAssignment(ctx context.Context, arg UpdateAssignmentParams) error {
-	_, err := q.db.ExecContext(ctx, updateAssignment, arg.ID, arg.Name, arg.DueDate)
+	_, err := q.db.ExecContext(ctx, updateAssignment,
+		arg.ID,
+		arg.Name,
+		arg.DueDate,
+		arg.Difficulty,
+		arg.Length,
+	)
 	return err
 }
 
 const upsertAssignment = `-- name: UpsertAssignment :one
-INSERT INTO assignments (id, course_id, name, due_date)
-VALUES (?1, ?2, ?3, ?4)
+INSERT INTO assignments (id, course_id, name, due_date, difficulty, length)
+VALUES (?1, ?2, ?3, ?4, ?5, ?6)
 ON CONFLICT(id) DO UPDATE SET 
     course_id = excluded.course_id,
     name = excluded.name,
-    due_date = excluded.due_date
+    due_date = excluded.due_date,
+    difficulty = excluded.difficulty,
+    length = excluded.length
 RETURNING id, course_id, name, due_date, created_at, difficulty, length
 `
 
 type UpsertAssignmentParams struct {
-	ID       int64        `json:"id"`
-	CourseID int64        `json:"course_id"`
-	Name     string       `json:"name"`
-	DueDate  sql.NullTime `json:"due_date"`
+	ID         int64         `json:"id"`
+	CourseID   int64         `json:"course_id"`
+	Name       string        `json:"name"`
+	DueDate    sql.NullTime  `json:"due_date"`
+	Difficulty sql.NullInt64 `json:"difficulty"`
+	Length     sql.NullInt64 `json:"length"`
 }
 
 func (q *Queries) UpsertAssignment(ctx context.Context, arg UpsertAssignmentParams) (Assignment, error) {
@@ -254,6 +268,8 @@ func (q *Queries) UpsertAssignment(ctx context.Context, arg UpsertAssignmentPara
 		arg.CourseID,
 		arg.Name,
 		arg.DueDate,
+		arg.Difficulty,
+		arg.Length,
 	)
 	var i Assignment
 	err := row.Scan(
