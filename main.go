@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/openai/openai-go"
 
 	_ "embed"
 
@@ -25,6 +26,16 @@ var uploadedFilesDir = "./uploads"
 
 //go:embed db/sqlite/schema.sql
 var ddl string
+
+// for OpenAI request
+type Assignment struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	CourseID   string `json:"course_id"`
+	DueDate    string `json:"due_date"`
+	Difficulty string `json:"difficulty,omitempty"`
+	Length     string `json:"length,omitempty"`
+}
 
 // Just for printing and testing the API
 func ExampleCanvasAssignmentFetcher(c *canvas.CanvasClient) {
@@ -247,6 +258,19 @@ func main() {
 	q := sqlite.New(db)
 
 	client := canvas.NewCanvasClient(BASE_CANVAS_URL, CANVAS_TOKEN)
+
+	// Retrieve the OpenAI API key from the environment variable
+	apiKey := os.Getenv("OPENAI_API_KEY")
+	if apiKey == "" {
+		fmt.Println("OPENAI_API_KEY is not set in the environment variables")
+		return
+	}
+
+	// Initialize the OpenAI client with the API key
+	openAIclient := openai.NewClient(apiKey)
+
+	// Now you can use the client to interact with the API
+	ctx := context.Background()
 
 	router := SetupRouter(client, q)
 
