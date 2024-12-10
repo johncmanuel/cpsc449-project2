@@ -125,11 +125,17 @@ func GetAllAssignments(c *gin.Context, q *sqlite.Queries) {
 	r := redis.GetInstance()
 	keys := "all_assignments" // Example key for all assignments cache
 
-	// Check if the assignments are cached
+	// Check if the assignments are cached first
 	e, err := r.Exists(keys)
 	if err != nil {
 		fmt.Printf("Error checking for key: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal server error",
+		})
+		return
 	}
+
+	// If assignments are not in cache, fetch them from DB
 	if !e {
 		// Get all assignments from the DB
 		assignments, err := q.ListAllAssignments(context.Background())
@@ -149,7 +155,7 @@ func GetAllAssignments(c *gin.Context, q *sqlite.Queries) {
 		return
 	}
 
-	// Get from cache if it exists
+	// If assignments exist in cache, get them from Redis
 	val, err := r.Get(keys)
 	if err != nil {
 		fmt.Printf("Error getting key: %v\n", err)
