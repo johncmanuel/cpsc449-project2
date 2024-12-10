@@ -215,6 +215,11 @@ func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
 		HandleAssignments(cli, q)
 	})
 
+	// Route to get all assignments (either from cache or DB)
+	r.GET("/all-assignments", func(c *gin.Context) {
+		GetAllAssignments(c, q)
+	})
+
 	// It's possible to get the syllabus through Canvas API; however, some
 	// teachers only upload their syllabus file in the the syllabus page. The API returns
 	// the HTML content of the syllabus page, so not sure if the API would be able to return the file
