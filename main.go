@@ -119,6 +119,33 @@ func GetAssignment(c *gin.Context, q *sqlite.Queries) {
 	c.JSON(http.StatusOK, val)
 }
 
+func DeleteAssignment(c *gin.Context, q *sqlite.Queries) {
+	courseID := c.Param("courseID")
+	assignmentID := c.Param("assignmentID")
+	r := redis.GetInstance()
+	keys := redis.GenerateTupleKey(courseID, assignmentID)
+	params := sqlite.DeleteAssignmentParams{
+		CourseID: utils.ConvertStringToInt64(courseID),
+		ID:       utils.ConvertStringToInt64(assignmentID),
+	}
+
+	if err := q.DeleteAssignment(context.Background(), params); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Assignment not found",
+		})
+		return
+	}
+
+	// remove from cache if its there
+	if err := r.Delete(keys); err != nil {
+		fmt.Printf("Error deleting key from cache: %v\n", err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Assignment deleted",
+	})
+}
+
 func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
 	r := gin.Default()
 
@@ -131,7 +158,9 @@ func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
 		GetAssignment(c, q)
 	})
 	// r.PUT("/:courseID/assignments/:assignmentID", UpdateAssignment)
-	// r.DELETE("/:courseID/assignments/:assignmentID", DeleteAssignment)
+	r.DELETE("/:courseID/assignments/:assignmentID", func(c *gin.Context) {
+		DeleteAssignment(c, q)
+	})
 	r.GET("/assignments", func(c *gin.Context) {
 		// ExampleCanvasAssignmentFetcher(cli)
 		HandleAssignments(cli, q)
