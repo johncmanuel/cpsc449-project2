@@ -106,6 +106,7 @@ func GetAssignment(c *gin.Context, q *sqlite.Queries) {
 			fmt.Printf("Error caching assignment: %v\n", err)
 		}
 		c.JSON(http.StatusOK, assignment)
+		return
 	}
 	// get from cache
 	val, err := r.Get(keys)
