@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -100,6 +101,7 @@ func GetAssignment(c *gin.Context, q *sqlite.Queries) {
 		fmt.Printf("Error checking for key: %v\n", err)
 	}
 	if !e {
+		fmt.Println("Value not found in cache, retrieving from DB.")
 		// get from the DB
 		params := sqlite.GetAssignmentParams{
 			CourseID: utils.ConvertStringToInt64(courseID),
@@ -128,7 +130,13 @@ func GetAssignment(c *gin.Context, q *sqlite.Queries) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, val)
+	fmt.Println("retrieving from cache lfg")
+	// deserialize json back to struct
+	var cachedAssignment sqlite.Assignment
+	if err := json.Unmarshal([]byte(val), &cachedAssignment); err != nil {
+		fmt.Printf("Error unmarshalling assignment: %v\n", err)
+	}
+	c.JSON(http.StatusOK, cachedAssignment)
 }
 
 // Simple function to get all assignments directly from DB

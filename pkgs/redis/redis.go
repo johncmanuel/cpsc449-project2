@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"sync"
@@ -57,7 +58,22 @@ func GenerateTupleKey(key1, key2 string) string {
 // Set a key-value pair with optional expiration
 func (r *RedisClient) Set(key string, value interface{}) error {
 	defaultExpiration := 2 * time.Minute
-	return r.client.Set(context.Background(), key, value, defaultExpiration).Err()
+
+	// Serialize the value to JSON
+	var serializedValue []byte
+	var err error
+
+	switch v := value.(type) {
+	case []byte:
+		serializedValue = v
+	default:
+		serializedValue, err = json.Marshal(value)
+		if err != nil {
+			return fmt.Errorf("failed to serialize value: %v", err)
+		}
+	}
+
+	return r.client.Set(context.Background(), key, serializedValue, defaultExpiration).Err()
 }
 
 // Retrieve a value for a given key
