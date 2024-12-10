@@ -120,52 +120,21 @@ func GetAssignment(c *gin.Context, q *sqlite.Queries) {
 	c.JSON(http.StatusOK, val)
 }
 
-// Retrieves all assignments, first checking the cache; if not found, fetches from DB and caches the result.
+// Simple function to get all assignments directly from DB
 func GetAllAssignments(c *gin.Context, q *sqlite.Queries) {
-	r := redis.GetInstance()
-	keys := "all_assignments" // Example key for all assignments cache
-
-	// Check if the assignments are cached first
-	e, err := r.Exists(keys)
+	// Attempt to fetch all assignments from the DB
+	assignments, err := q.ListAllAssignments(context.Background())
 	if err != nil {
-		fmt.Printf("Error checking for key: %v\n", err)
+		// If an error occurs, print it and return a server error response
+		fmt.Printf("Error fetching assignments from DB: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal server error",
+			"error": fmt.Sprintf("Error fetching assignments: %v", err),
 		})
 		return
 	}
 
-	// If assignments are not in cache, fetch them from DB
-	if !e {
-		// Get all assignments from the DB
-		assignments, err := q.ListAllAssignments(context.Background())
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Error fetching assignments from DB",
-			})
-			return
-		}
-
-		// Cache the assignments list
-		if err := r.Set(keys, assignments); err != nil {
-			fmt.Printf("Error caching assignments: %v\n", err)
-		}
-
-		c.JSON(http.StatusOK, assignments)
-		return
-	}
-
-	// If assignments exist in cache, get them from Redis
-	val, err := r.Get(keys)
-	if err != nil {
-		fmt.Printf("Error getting key: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal server error",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, val)
+	// Return the assignments as JSON if successful
+	c.JSON(http.StatusOK, assignments)
 }
 
 func DeleteAssignment(c *gin.Context, q *sqlite.Queries) {
@@ -215,7 +184,7 @@ func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
 		HandleAssignments(cli, q)
 	})
 
-	// Route to get all assignments (either from cache or DB)
+	// Route to get all assignments directly from the DB (no caching)
 	r.GET("/all-assignments", func(c *gin.Context) {
 		GetAllAssignments(c, q)
 	})
