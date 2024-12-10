@@ -183,7 +183,7 @@ func DeleteAssignment(c *gin.Context, q *sqlite.Queries) {
 	})
 }
 
-func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
+func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries, ocli *openai.Client) *gin.Engine {
 	r := gin.Default()
 
 	// Test route
@@ -246,41 +246,43 @@ func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
 }
 
 func main() {
+	// Load environment variables
 	utils.LoadEnv()
+
 	var (
 		BASE_CANVAS_URL = utils.GetEnv("CANVAS_URL")
 		CANVAS_TOKEN    = utils.GetEnv("CANVAS_TOKEN")
 	)
 
+	// Open SQLite database connection
 	db, err := sql.Open("sqlite3", "./db/canvas.db")
 	if err != nil {
 		panic(fmt.Sprintf("Error opening database: %v", err))
 	}
 	defer db.Close()
 
-	// create the tables if they don't exist
+	// Create the tables if they don't exist
 	if _, err := db.ExecContext(context.Background(), ddl); err != nil {
 		panic(fmt.Sprintf("Error creating tables: %v", err))
 	}
 
 	q := sqlite.New(db)
 
+	// Initialize Canvas client
 	client := canvas.NewCanvasClient(BASE_CANVAS_URL, CANVAS_TOKEN)
 
-	// Retrieve the OpenAI API key from the environment variable
-	apiKey := os.Getenv("OPENAI_API_KEY")
+	// Retrieve the OpenAI API key from environment variables
+	apiKey := utils.GetEnv("OPENAI_API_KEY")
 	if apiKey == "" {
 		fmt.Println("OPENAI_API_KEY is not set in the environment variables")
 		return
 	}
 
-	// Initialize the OpenAI client with the API key
+	// Initialize the OpenAI client
 	openAIclient := openai.NewClient(apiKey)
 
-	// Now you can use the client to interact with the API
-	ctx := context.Background()
-
-	router := SetupRouter(client, q)
+	// Set up the router with dependencies
+	router := SetupRouter(client, q, openAIclient)
 
 	// test redis
 	// r := redis.GetInstance()
@@ -295,11 +297,14 @@ func main() {
 	// 	fmt.Println("REDIS: Key not found, which is expected", err)
 	// }
 
-	port := os.Getenv("PORT")
+	// Determine server port
+	port := utils.GetEnv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
 	fmt.Printf("Server starting on port %s...\n", port)
-	router.Run(":" + port)
+	if err := router.Run(":" + port); err != nil {
+		panic(fmt.Sprintf("Failed to start server: %v", err))
+	}
 }
