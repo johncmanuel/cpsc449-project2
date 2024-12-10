@@ -46,7 +46,7 @@ func (q *Queries) DeleteCourse(ctx context.Context, id int64) error {
 }
 
 const getAssignment = `-- name: GetAssignment :one
-SELECT id, course_id, name, due_date, created_at FROM assignments
+SELECT id, course_id, name, due_date, created_at, difficulty, length FROM assignments
 WHERE id = ?1 and course_id = ?2
 `
 
@@ -64,6 +64,8 @@ func (q *Queries) GetAssignment(ctx context.Context, arg GetAssignmentParams) (A
 		&i.Name,
 		&i.DueDate,
 		&i.CreatedAt,
+		&i.Difficulty,
+		&i.Length,
 	)
 	return i, err
 }
@@ -113,7 +115,7 @@ func (q *Queries) GetAssignmentCountsByCourse(ctx context.Context) ([]GetAssignm
 }
 
 const listAllAssignments = `-- name: ListAllAssignments :many
-SELECT id, course_id, name, due_date, created_at FROM assignments
+SELECT id, course_id, name, due_date, created_at, difficulty, length FROM assignments
 `
 
 func (q *Queries) ListAllAssignments(ctx context.Context) ([]Assignment, error) {
@@ -131,6 +133,8 @@ func (q *Queries) ListAllAssignments(ctx context.Context) ([]Assignment, error) 
 			&i.Name,
 			&i.DueDate,
 			&i.CreatedAt,
+			&i.Difficulty,
+			&i.Length,
 		); err != nil {
 			return nil, err
 		}
@@ -234,7 +238,7 @@ ON CONFLICT(id) DO UPDATE SET
     course_id = excluded.course_id,
     name = excluded.name,
     due_date = excluded.due_date
-RETURNING id, course_id, name, due_date, created_at
+RETURNING id, course_id, name, due_date, created_at, difficulty, length
 `
 
 type UpsertAssignmentParams struct {
@@ -258,6 +262,8 @@ func (q *Queries) UpsertAssignment(ctx context.Context, arg UpsertAssignmentPara
 		&i.Name,
 		&i.DueDate,
 		&i.CreatedAt,
+		&i.Difficulty,
+		&i.Length,
 	)
 	return i, err
 }

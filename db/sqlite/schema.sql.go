@@ -9,11 +9,13 @@ import (
 )
 
 type Assignment struct {
-	ID        int64        `json:"id"`
-	CourseID  int64        `json:"course_id"`
-	Name      string       `json:"name"`
-	DueDate   sql.NullTime `json:"due_date"`
-	CreatedAt sql.NullTime `json:"created_at"`
+	ID         int64         `json:"id"`
+	CourseID   int64         `json:"course_id"`
+	Name       string        `json:"name"`
+	DueDate    sql.NullTime  `json:"due_date"`
+	CreatedAt  sql.NullTime  `json:"created_at"`
+	Difficulty sql.NullInt64 `json:"difficulty"`
+	Length     sql.NullInt64 `json:"length"`
 }
 
 type Course struct {

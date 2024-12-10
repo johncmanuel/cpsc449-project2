@@ -11,10 +11,12 @@ CREATE TABLE IF NOT EXISTS assignments (
     name TEXT NOT NULL,
     due_date DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    
+    difficulty INTEGER CHECK(difficulty BETWEEN 1 AND 10),  -- New column for difficulty with valid range
+    length INTEGER,    -- New column for length
     FOREIGN KEY(course_id) REFERENCES courses(id) 
     ON DELETE CASCADE
 );
+
 
 -- Index for faster lookups (optional in SQLite, but can improve performance)
 CREATE INDEX IF NOT EXISTS idx_assignments_course_id ON assignments(course_id);
