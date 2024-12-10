@@ -120,6 +120,48 @@ func GetAssignment(c *gin.Context, q *sqlite.Queries) {
 	c.JSON(http.StatusOK, val)
 }
 
+// Retrieves all assignments, first checking the cache; if not found, fetches from DB and caches the result.
+func GetAllAssignments(c *gin.Context, q *sqlite.Queries) {
+	r := redis.GetInstance()
+	keys := "all_assignments" // Example key for all assignments cache
+
+	// Check if the assignments are cached
+	e, err := r.Exists(keys)
+	if err != nil {
+		fmt.Printf("Error checking for key: %v\n", err)
+	}
+	if !e {
+		// Get all assignments from the DB
+		assignments, err := q.ListAllAssignments(context.Background())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Error fetching assignments from DB",
+			})
+			return
+		}
+
+		// Cache the assignments list
+		if err := r.Set(keys, assignments); err != nil {
+			fmt.Printf("Error caching assignments: %v\n", err)
+		}
+
+		c.JSON(http.StatusOK, assignments)
+		return
+	}
+
+	// Get from cache if it exists
+	val, err := r.Get(keys)
+	if err != nil {
+		fmt.Printf("Error getting key: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, val)
+}
+
 func DeleteAssignment(c *gin.Context, q *sqlite.Queries) {
 	courseID := c.Param("courseID")
 	assignmentID := c.Param("assignmentID")
