@@ -12,6 +12,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 
 	_ "embed"
 
@@ -279,7 +280,9 @@ func main() {
 	}
 
 	// Initialize the OpenAI client
-	openAIclient := openai.NewClient(apiKey)
+	openAIclient := openai.NewClient(
+		option.WithAPIKey("My API Key"),
+	)
 
 	// Set up the router with dependencies
 	router := SetupRouter(client, q, openAIclient)
