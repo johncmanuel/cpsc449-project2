@@ -51,7 +51,9 @@ func NewCanvasClient(baseURL, authToken string) *CanvasClient {
 
 // https://canvas.instructure.com/doc/api/courses.html#method.courses.index
 func (c *CanvasClient) GetCurrentTermCourses() ([]Course, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/courses?published=true&include[]=term", c.BaseURL), nil)
+	// Ensure to get all the courses using per_page=100
+	// https://community.canvaslms.com/t5/Canvas-Developers-Group/Courses-API-request-doesn-t-return-all-courses/m-p/508108
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/courses?published=true&per_page=100&include[]=term", c.BaseURL), nil)
 	if err != nil {
 		return nil, err
 	}
