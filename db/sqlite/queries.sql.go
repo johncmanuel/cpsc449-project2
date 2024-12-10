@@ -10,6 +10,21 @@ import (
 	"database/sql"
 )
 
+const deleteAssignment = `-- name: DeleteAssignment :exec
+DELETE FROM assignments
+WHERE course_id = ?1 AND id = ?2
+`
+
+type DeleteAssignmentParams struct {
+	CourseID int64 `json:"course_id"`
+	ID       int64 `json:"id"`
+}
+
+func (q *Queries) DeleteAssignment(ctx context.Context, arg DeleteAssignmentParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAssignment, arg.CourseID, arg.ID)
+	return err
+}
+
 const deleteAssignmentsByCourse = `-- name: DeleteAssignmentsByCourse :exec
 DELETE FROM assignments 
 WHERE course_id = ?1
@@ -17,6 +32,16 @@ WHERE course_id = ?1
 
 func (q *Queries) DeleteAssignmentsByCourse(ctx context.Context, courseID int64) error {
 	_, err := q.db.ExecContext(ctx, deleteAssignmentsByCourse, courseID)
+	return err
+}
+
+const deleteCourse = `-- name: DeleteCourse :exec
+DELETE FROM courses
+WHERE id = ?1
+`
+
+func (q *Queries) DeleteCourse(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteCourse, id)
 	return err
 }
 
@@ -51,6 +76,66 @@ func (q *Queries) GetAssignmentCountsByCourse(ctx context.Context) ([]GetAssignm
 	for rows.Next() {
 		var i GetAssignmentCountsByCourseRow
 		if err := rows.Scan(&i.CourseID, &i.CourseName, &i.AssignmentCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAllAssignments = `-- name: ListAllAssignments :many
+SELECT id, course_id, name, due_date, created_at FROM assignments
+`
+
+func (q *Queries) ListAllAssignments(ctx context.Context) ([]Assignment, error) {
+	rows, err := q.db.QueryContext(ctx, listAllAssignments)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Assignment
+	for rows.Next() {
+		var i Assignment
+		if err := rows.Scan(
+			&i.ID,
+			&i.CourseID,
+			&i.Name,
+			&i.DueDate,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAllCourses = `-- name: ListAllCourses :many
+SELECT id, name, created_at FROM courses
+`
+
+func (q *Queries) ListAllCourses(ctx context.Context) ([]Course, error) {
+	rows, err := q.db.QueryContext(ctx, listAllCourses)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Course
+	for rows.Next() {
+		var i Course
+		if err := rows.Scan(&i.ID, &i.Name, &i.CreatedAt); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

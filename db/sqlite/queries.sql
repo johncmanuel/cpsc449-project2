@@ -25,6 +25,14 @@ ORDER BY due_date;
 DELETE FROM assignments 
 WHERE course_id = ?1;
 
+-- name: DeleteAssignment :exec
+DELETE FROM assignments
+WHERE course_id = ?1 AND id = ?2;
+
+-- name: DeleteCourse :exec
+DELETE FROM courses
+WHERE id = ?1;
+
 -- name: UpdateAssignment :exec
 UPDATE assignments
 SET 
@@ -46,6 +54,11 @@ FROM courses c
 LEFT JOIN assignment_counts ac ON c.id = ac.course_id
 ORDER BY assignment_count DESC;
 
+-- name: ListAllAssignments :many
+SELECT * FROM assignments;
+
+-- name: ListAllCourses :many
+SELECT * FROM courses;
 
 -- -- name: UpsertCourse :one
 -- INSERT INTO courses (id, name)
