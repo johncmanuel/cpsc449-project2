@@ -44,16 +44,47 @@ func ExampleCanvasAssignmentFetcher(c *canvas.CanvasClient) {
 	}
 }
 
+// Fetch assignments from Canvas and insert into sqlite db
+func HandleAssignments(c *canvas.CanvasClient, q *sqlite.Queries) {
+	allAssignments, err := c.GetAllAssignmentsForCurrentTerm()
+	if err != nil {
+		fmt.Printf("Error fetching assignments: %v\n", err)
+		return
+	}
+	for courseID, courseAssignments := range allAssignments {
+		for courseName, assignments := range courseAssignments {
+			fmt.Printf("Course: %s (ID: %d)\n", courseName, courseID)
+			for _, assignment := range assignments {
+				fmt.Printf("- Assignment: %s (ID: %d), Due: %s\n",
+					assignment.Name, assignment.ID, assignment.DueAt)
+				// TODO: add course name to the DB
+				params := sqlite.UpsertAssignmentParams{
+					ID:       int64(assignment.ID),
+					CourseID: int64(courseID),
+					Name:     assignment.Name,
+					DueDate:  utils.ConvertToNullTime(assignment.DueAt),
+				}
+				if _, err := q.UpsertAssignment(context.Background(), params); err != nil {
+					fmt.Printf("Error inserting assignment: %v\n", err)
+				}
+			}
+		}
+	}
+}
+
 func SetupRouter(cli *canvas.CanvasClient, q *sqlite.Queries) *gin.Engine {
 	r := gin.Default()
 
 	// Setup routes and other endpoints here
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
+
+	// Test route
+	r.GET("/test", func(c *gin.Context) {
+		ExampleCanvasAssignmentFetcher(cli)
 	})
 
 	r.GET("/assignments", func(c *gin.Context) {
-		ExampleCanvasAssignmentFetcher(cli)
+		// ExampleCanvasAssignmentFetcher(cli)
+		HandleAssignments(cli, q)
 	})
 
 	// It's possible to get the syllabus through Canvas API; however, some

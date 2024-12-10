@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"database/sql"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -19,4 +21,18 @@ func GetEnv(key string) string {
 		panic("Environment variable not set: " + key)
 	}
 	return env
+}
+
+func ConvertToNullTime(timestamp string) sql.NullTime {
+	parsedTime, err := time.Parse(time.RFC3339, timestamp)
+	if err != nil {
+		return sql.NullTime{
+			Time:  time.Time{},
+			Valid: false,
+		}
+	}
+	return sql.NullTime{
+		Time:  parsedTime,
+		Valid: true,
+	}
 }
