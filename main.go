@@ -73,10 +73,12 @@ func HandleAssignments(c *canvas.CanvasClient, q *sqlite.Queries) {
 					assignment.Name, assignment.ID, assignment.DueAt)
 				// TODO: add course name to the DB
 				params := sqlite.UpsertAssignmentParams{
-					ID:       int64(assignment.ID),
-					CourseID: int64(courseID),
-					Name:     assignment.Name,
-					DueDate:  utils.ConvertToNullTime(assignment.DueAt),
+					ID:         int64(assignment.ID),
+					CourseID:   int64(courseID),
+					Name:       assignment.Name,
+					DueDate:    utils.ConvertToNullTime(assignment.DueAt),
+					Difficulty: sql.NullInt64{},
+					Length:     sql.NullInt64{},
 				}
 				if _, err := q.UpsertAssignment(context.Background(), params); err != nil {
 					fmt.Printf("Error inserting assignment: %v\n", err)
