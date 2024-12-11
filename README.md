@@ -37,10 +37,9 @@ The following routes are described as follows:
 
 ## Caching
 
-As mentioned before, we use Redis for caching. We cache any repeated queries to the database to improve performance. Below is a performance comparison between a query with and without Redis caching:
+As mentioned before, we use Redis for caching. We cache any repeated queries to the database to improve performance. Below is a performance comparison between a query for an individual assignment with and without Redis caching:
 
-![Redis Performance]("./public/redis_performance.png")
-
+![Redis Performance](./public/redis-performance.png)
 
 ## Future Works
 
