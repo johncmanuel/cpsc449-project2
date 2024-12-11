@@ -35,6 +35,13 @@ The following routes are described as follows:
 - `/all-assignments`: Retrieves all assignments from the database
 - `/syllabus` (Concept): A POST request that leverages the OpenAI model to summarize the syllabus and store that in the database
 
+## Caching
+
+As mentioned before, we use Redis for caching. We cache any repeated queries to the database to improve performance. Below is a performance comparison between a query with and without Redis caching:
+
+![Redis Performance]("./public/redis_performance.png")
+
+
 ## Future Works
 
 - Most of the AI implementation is missing as of our latest update (12/10/24). We would like to utilize the AI to prioritize assignments based on estimated time and difficulty to help students organize their workflow.
